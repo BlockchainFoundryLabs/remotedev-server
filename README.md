@@ -17,7 +17,7 @@ Also [there's a docker image](https://github.com/jhen0409/docker-remotedev-serve
 
 ```
 "scripts": {
-  "remotedev": "remotedev --hostname=localhost --port=8000"
+  "remotedev": "remotedev --hostname=localhost --port=9999"
 }
 ```
 
@@ -27,7 +27,7 @@ So, you can start remotedev server by running `npm run remotedev`.
 
 ```js
 var remotedev = require('remotedev-server');
-remotedev({ hostname: 'localhost', port: 8000 });
+remotedev({ hostname: 'localhost', port: 9999 });
 ```
 
 So, you can start remotedev server together with your dev server.
@@ -35,12 +35,12 @@ So, you can start remotedev server together with your dev server.
 ##### Install the package globally (not recommended) just run:
 
 ```
-remotedev --hostname=localhost --port=8000
+remotedev --hostname=localhost --port=9999
 ```
 
 ### Connection settings
 
-Set `hostname` and `port` to the values you want. `hostname` by default is `localhost` and `port` is `8000`.
+Set `hostname` and `port` to the values you want. `hostname` by default is `localhost` and `port` is `9999`.
 
 To use WSS, set `protocol` argument to `https` and provide `key`, `cert` and `passphrase` arguments.
 
@@ -50,7 +50,7 @@ To use WSS, set `protocol` argument to `https` and provide `key`, `cert` and `pa
 
 ```
 "scripts": {
-  "remotedev": "remotedev --hostname=localhost --port=8000 --injectserver=reactnative"
+  "remotedev": "remotedev --hostname=localhost --port=9999 --injectserver=reactnative"
 }
 ```
 
@@ -77,7 +77,7 @@ Or just run `$(npm bin)/remotedev --revert`.
 If you're running an Android 5.0+ device connected via USB or an Android emulator, use [adb command line tool](http://developer.android.com/tools/help/adb.html) to setup port forwarding from the device to your computer:
 
 ```
-adb reverse tcp:8000 tcp:8000
+adb reverse tcp:9999 tcp:9999
 ```
 
 If you're still use Android 4.0, you should use `10.0.2.2` (Genymotion: `10.0.3.2`) instead of `localhost` in [remote-redux-devtools](https://github.com/zalmoxisus/remote-redux-devtools#storeconfigurestorejs) or [remotedev](https://github.com/zalmoxisus/remotedev#usage).
