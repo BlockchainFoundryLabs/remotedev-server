@@ -1,11 +1,11 @@
-var fs = require('fs');
-var path = require('path');
-var semver = require('semver');
+const fs = require('fs');
+const path = require('path');
+const semver = require('semver');
 
-var name = 'remotedev-server';
-var startFlag = '/* ' + name + ' start */';
-var endFlag = '/* ' + name + ' end */';
-var serverFlags = {
+const name = 'remotedev-server';
+const startFlag = '/* ' + name + ' start */';
+const endFlag = '/* ' + name + ' end */';
+const serverFlags = {
   'react-native': {
     '0.0.1': '    _server(argv, config, resolve, reject);',
     '0.31.0': "  runServer(args, config, () => console.log('\\nReact packager ready.\\n'));",
@@ -28,14 +28,16 @@ function getModuleVersion(modulePath) {
 }
 
 function getServerFlag(moduleName, version) {
-  var flags = serverFlags[moduleName || 'react-native'];
-  var versions = Object.keys(flags);
-  var flag;
-  for (var i = 0; i < versions.length; i++) {
+  const flags = serverFlags[moduleName || 'react-native'];
+  const versions = Object.keys(flags);
+  let flag;
+
+  for (let i = 0; i < versions.length; i++) {
     if (semver.gte(version, versions[i])) {
       flag = flags[versions[i]];
     }
   }
+
   return flag;
 }
 
@@ -44,14 +46,18 @@ exports.file = 'server.js';
 exports.fullPath = path.join(exports.dir, exports.file);
 
 exports.inject = function(modulePath, options, moduleName) {
-  var filePath = path.join(modulePath, exports.fullPath);
-  if (!fs.existsSync(filePath)) return false;
+  const filePath = path.join(modulePath, exports.fullPath);
 
-  var serverFlag = getServerFlag(
+  if (!fs.existsSync(filePath)) {
+    return false;
+  }
+
+  const serverFlag = getServerFlag(
     moduleName,
     getModuleVersion(modulePath)
   );
-  var code = [
+
+  const code = [
     startFlag,
     '    require("' + name + '")(' + JSON.stringify(options) + ')',
     '      .then(_remotedev =>',
@@ -63,36 +69,42 @@ exports.inject = function(modulePath, options, moduleName) {
     endFlag,
   ].join('\n');
 
-  var serverCode = fs.readFileSync(filePath, 'utf-8');
-  var start = serverCode.indexOf(startFlag);  // already injected ?
-  var end = serverCode.indexOf(endFlag) + endFlag.length;
-  if (start === -1) {
-    start = serverCode.indexOf(serverFlag);
-    end = start + serverFlag.length;
-  }
+  const serverCode = fs.readFileSync(filePath, 'utf-8');
+  const alreadyInjectedCheck = serverCode.indexOf(startFlag) === -1;
+
+  const start = alreadyInjectedCheck ? serverCode.indexOf(serverFlag) : serverCode.indexOf(startFlag);  // already injected ?
+  const end = alreadyInjectedCheck ? start + serverFlag.length : serverCode.indexOf(endFlag) + endFlag.length;
+
   fs.writeFileSync(
     filePath,
     serverCode.substr(0, start) + code + serverCode.substr(end, serverCode.length)
   );
+
   return true;
 };
 
 exports.revert = function(modulePath, moduleName) {
-  var filePath = path.join(modulePath, exports.fullPath);
-  if (!fs.existsSync(filePath)) return false;
+  const filePath = path.join(modulePath, exports.fullPath);
 
-  var serverFlag = getServerFlag(
+  if (!fs.existsSync(filePath)) {
+    return false;
+  }
+
+  const serverFlag = getServerFlag(
     moduleName,
     getModuleVersion(modulePath)
   );
-  var serverCode = fs.readFileSync(filePath, 'utf-8');
-  var start = serverCode.indexOf(startFlag); // already injected ?
-  var end = serverCode.indexOf(endFlag) + endFlag.length;
+
+  const serverCode = fs.readFileSync(filePath, 'utf-8');
+  const start = serverCode.indexOf(startFlag); // already injected ?
+  const end = serverCode.indexOf(endFlag) + endFlag.length;
+
   if (start !== -1) {
     fs.writeFileSync(
       filePath,
       serverCode.substr(0, start) + serverFlag + serverCode.substr(end, serverCode.length)
     );
   }
+
   return true;
 };
